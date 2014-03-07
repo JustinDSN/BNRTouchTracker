@@ -74,6 +74,10 @@
     }
 }
 
+- (BOOL)canBecomeFirstResponder {
+    return YES;
+}
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     NSLog(@"%@", NSStringFromSelector(_cmd));
     
@@ -142,6 +146,24 @@
     CGPoint point = [gr locationInView:self];
     self.selectedLine = [self lineAtPoint:point];
     
+    if (self.selectedLine) {
+        //Make ourselves the target of menu item action messages, is there another way to do this?
+        [self becomeFirstResponder];
+        
+        UIMenuController *menu = [UIMenuController sharedMenuController];
+        
+        UIMenuItem *deleteItem = [[UIMenuItem alloc] initWithTitle:@"Delete"
+                                                            action:@selector(deleteLine:)];
+        
+        menu.menuItems = @[deleteItem];
+        
+        [menu setTargetRect:CGRectMake(point.x, point.y, 2, 2) inView:self];
+        [menu setMenuVisible:YES animated:YES];
+    }
+    else {
+        [[UIMenuController sharedMenuController] setMenuVisible:NO animated:YES];
+    }
+    
     [self setNeedsDisplay];
 }
 
@@ -162,6 +184,12 @@
     }
     
     return nil;
+}
+
+- (void)deleteLine:(id)sender {
+    [self.finishedLines removeObject:self.selectedLine];
+    
+    [self setNeedsDisplay];
 }
 
 @end
