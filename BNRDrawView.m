@@ -13,6 +13,7 @@
 
 @property (nonatomic, strong) NSMutableDictionary *linesInProgress;
 @property (nonatomic, strong) NSMutableArray *finishedLines;
+@property (nonatomic, weak) BNRLine *selectedLine;
 
 @end
 
@@ -65,6 +66,11 @@
     [[UIColor redColor] set];
     for (NSValue *key in self.linesInProgress) {
         [self strokeLine:self.linesInProgress[key]];
+    }
+    
+    if (self.selectedLine) {
+        [[UIColor greenColor] set];
+        [self strokeLine:self.selectedLine];
     }
 }
 
@@ -133,6 +139,29 @@
 
 - (void)tap:(UIGestureRecognizer *)gr {
     NSLog(@"Recognized a tap");
+    CGPoint point = [gr locationInView:self];
+    self.selectedLine = [self lineAtPoint:point];
+    
+    [self setNeedsDisplay];
+}
+
+- (BNRLine *)lineAtPoint:(CGPoint)p {
+    for (BNRLine *line in self.finishedLines) {
+        CGPoint start = line.begin;
+        CGPoint end = line.end;
+        
+        for(float t = 0.0; t <= 1.0; t += 0.05) {
+            float x = start.x + t * (end.x - start.x);
+            float y = start.y + t * (end.y - start.y);
+            
+            
+            if (hypot(x - p.x, y - p.y) < 20.0) {
+                return line;
+            }
+        }
+    }
+    
+    return nil;
 }
 
 @end
