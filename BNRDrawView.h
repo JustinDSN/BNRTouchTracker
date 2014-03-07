@@ -8,6 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-@interface BNRDrawView : NSObject
+@interface BNRDrawView : UIView
 
 @end
